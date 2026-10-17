@@ -24,6 +24,11 @@ a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 .conteneur { max-width: var(--largeur); margin: 0 auto; padding: 0 20px; }
 
+.barre-progression {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 50;
+  background: var(--degrade); transition: width .1s linear;
+}
+
 /* En-tête et pied de page */
 .entete {
   background: color-mix(in srgb, var(--surface) 80%, transparent);
@@ -60,18 +65,36 @@ h2 { font-size: 1.7rem; margin: 56px 0 20px; letter-spacing: -0.01em; }
 .sous-titre { font-size: 1.2rem; color: var(--texte-doux); max-width: 680px; }
 
 /* Hero */
-.hero { position: relative; padding: 72px 0 40px; overflow: visible; }
+.hero { position: relative; padding: 72px 0 40px; overflow: visible; --souris-x: 50%; --souris-y: 20%; }
 .hero-fond {
   position: absolute; inset: -40px -20px auto -20px; height: 420px; z-index: -1;
   background:
     radial-gradient(420px 280px at 15% 10%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
     radial-gradient(380px 260px at 85% 30%, color-mix(in srgb, var(--accent-2) 20%, transparent), transparent 70%);
   filter: blur(10px);
+  animation: flotter 14s ease-in-out infinite;
+}
+.hero::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: var(--rayon);
+  background: radial-gradient(260px circle at var(--souris-x) var(--souris-y), color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%);
+  opacity: 0; transition: opacity .4s;
+}
+.hero:hover::after { opacity: 1; }
+@keyframes flotter {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(18px, -12px) scale(1.06); }
 }
 .hero-badge {
   display: inline-block; font-size: .82rem; font-weight: 600; color: var(--accent);
   background: var(--accent-doux); padding: 6px 14px; border-radius: 999px; margin-bottom: 18px;
 }
+.texte-degrade {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent));
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: glisser-degrade 6s linear infinite;
+}
+@keyframes glisser-degrade { to { background-position: 200% center; } }
 
 /* Boutons */
 .boutons { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
@@ -79,9 +102,13 @@ h2 { font-size: 1.7rem; margin: 56px 0 20px; letter-spacing: -0.01em; }
   display: inline-block; padding: 11px 20px; border-radius: 999px; border: 1px solid var(--bordure);
   background: var(--surface); color: var(--texte); font-weight: 600; transition: transform .15s, box-shadow .15s, border-color .15s;
 }
-.bouton.principal { background: var(--degrade); color: #fff; border-color: transparent; box-shadow: 0 6px 20px var(--accent-glow); }
+.bouton.principal { background: var(--degrade); color: #fff; border-color: transparent; box-shadow: 0 6px 20px var(--accent-glow); animation: pulser 2.6s ease-in-out infinite; }
 .bouton:hover { text-decoration: none; transform: translateY(-2px); box-shadow: 0 10px 24px rgba(20, 21, 31, .1); }
-.bouton.principal:hover { box-shadow: 0 10px 28px var(--accent-glow); }
+.bouton.principal:hover { box-shadow: 0 10px 28px var(--accent-glow); animation-play-state: paused; }
+@keyframes pulser {
+  0%, 100% { box-shadow: 0 6px 20px var(--accent-glow); }
+  50% { box-shadow: 0 8px 30px var(--accent-glow); }
+}
 .lien-fleche { font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
 .lien-fleche span { transition: transform .15s; display: inline-block; }
 .lien-fleche:hover span { transform: translateX(4px); }
@@ -115,16 +142,6 @@ h2 { font-size: 1.7rem; margin: 56px 0 20px; letter-spacing: -0.01em; }
 .filtres button:hover { border-color: var(--accent); color: var(--accent); }
 .filtres button[aria-pressed="true"] { background: var(--degrade); color: #fff; border-color: transparent; box-shadow: 0 4px 14px var(--accent-glow); }
 
-/* Chiffres clés */
-.chiffres { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin: 40px 0; }
-.chiffre {
-  background: var(--surface); border: 1px solid var(--bordure); border-radius: var(--rayon); padding: 18px;
-  position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s;
-}
-.chiffre::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--degrade); }
-.chiffre:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(20, 21, 31, .08); }
-.chiffre strong { display: block; font-family: var(--police-titres); font-size: 1.7rem; background: var(--degrade); -webkit-background-clip: text; background-clip: text; color: transparent; }
-
 .photo-profil {
   width: 160px; height: 160px; border-radius: 50%; object-fit: cover;
   padding: 4px; background: var(--degrade);
@@ -152,8 +169,8 @@ h2 { font-size: 1.7rem; margin: 56px 0 20px; letter-spacing: -0.01em; }
 @keyframes apparition { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 .reveal { animation: apparition .6s ease both; animation-delay: var(--delai, 0ms); }
 @media (prefers-reduced-motion: reduce) {
-  .reveal { animation: none; }
-  .carte, .bouton, .chiffre { transition: none; }
+  .reveal, .hero-fond, .texte-degrade, .bouton.principal { animation: none; }
+  .carte, .bouton { transition: none; }
 }
 
 @media (max-width: 640px) {

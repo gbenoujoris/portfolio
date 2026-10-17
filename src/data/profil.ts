@@ -17,13 +17,6 @@ export const profil = {
   },
 };
 
-export const chiffres = [
-  { valeur: 'Master', texte: 'Génie électrique, contrôle des processus industriels' },
-  { valeur: '5', texte: 'Stages et missions en industrie et en laboratoire' },
-  { valeur: '1er', texte: 'MAIC 2020, compétition internationale d’IA' },
-  { valeur: 'Best Mentor', texte: 'First Lego League Bénin 2024' },
-];
-
 export const experiences = [
   {
     periode: 'Mars 2025 – aujourd’hui',

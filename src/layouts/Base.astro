@@ -37,6 +37,7 @@ const liens = [
     <ClientRouter />
   </head>
   <body>
+    <div class="barre-progression" id="barre-progression"></div>
     <header class="entete" id="entete">
       <div class="conteneur">
         <a href="/" class="logo">{profil.nom}</a>
@@ -48,7 +49,7 @@ const liens = [
       </div>
     </header>
     <main>
-      <div class="conteneur"><slot /></div>
+      <div class="conteneur" transition:animate="slide"><slot /></div>
     </main>
     <footer class="pied">
       <div class="conteneur">
@@ -63,11 +64,51 @@ const liens = [
     </footer>
 
     <script>
-      const entete = document.getElementById('entete');
-      const onScroll = () => entete?.classList.toggle('entete--ombree', window.scrollY > 8);
+      // Les éléments sont re-cherchés à chaque appel : avec les transitions de page
+      // d'Astro, le DOM est remplacé à chaque navigation sans recharger le script.
+      const onScroll = () => {
+        const entete = document.getElementById('entete');
+        const barre = document.getElementById('barre-progression');
+        entete?.classList.toggle('entete--ombree', window.scrollY > 8);
+        if (barre) {
+          const h = document.documentElement;
+          const hauteurDefilable = h.scrollHeight - h.clientHeight;
+          const pourcentage = hauteurDefilable > 0 ? (h.scrollTop / hauteurDefilable) * 100 : 0;
+          barre.style.width = `${pourcentage}%`;
+        }
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+
+      const pointeurFin = window.matchMedia('(pointer: fine)').matches;
+      const mouvementReduit = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const activerTilt = () => {
+        if (!pointeurFin || mouvementReduit) return;
+        document.querySelectorAll<HTMLElement>('.carte').forEach((carte) => {
+          carte.addEventListener('mousemove', (e) => {
+            const r = carte.getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width - 0.5;
+            const y = (e.clientY - r.top) / r.height - 0.5;
+            carte.style.transform = `perspective(700px) rotateX(${y * -6}deg) rotateY(${x * 6}deg) translateY(-5px)`;
+          });
+          carte.addEventListener('mouseleave', () => { carte.style.transform = ''; });
+        });
+      };
+
+      const activerHaloHero = () => {
+        if (!pointeurFin || mouvementReduit) return;
+        const hero = document.querySelector<HTMLElement>('.hero');
+        hero?.addEventListener('mousemove', (e) => {
+          const r = hero.getBoundingClientRect();
+          hero.style.setProperty('--souris-x', `${e.clientX - r.left}px`);
+          hero.style.setProperty('--souris-y', `${e.clientY - r.top}px`);
+        });
+      };
+
       document.addEventListener('astro:page-load', () => {
         onScroll();
-        window.addEventListener('scroll', onScroll, { passive: true });
+        activerTilt();
+        activerHaloHero();
       });
     </script>
   </body>
