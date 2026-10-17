@@ -1,0 +1,74 @@
+---
+import '../styles/global.css';
+import { profil } from '../data/profil';
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  titre?: string;
+  description?: string;
+  image?: string;
+}
+const { titre, description = profil.accroche, image = '/photo.jpg' } = Astro.props;
+const titreComplet = titre ? `${titre} | ${profil.nom}` : `${profil.nom} | ${profil.titre}`;
+
+const chemin = Astro.url.pathname;
+const actif = (href: string) =>
+  href === '/' ? chemin === '/' : chemin.startsWith(href.replace(/\/$/, ''));
+const liens = [
+  { href: '/', texte: 'Accueil' },
+  { href: '/projets/', texte: 'Projets' },
+  { href: '/a-propos/', texte: 'À propos' },
+];
+---
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titreComplet}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={titreComplet} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(image, Astro.site)} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <ClientRouter />
+  </head>
+  <body>
+    <header class="entete" id="entete">
+      <div class="conteneur">
+        <a href="/" class="logo">{profil.nom}</a>
+        <nav class="menu">
+          {liens.map((l) => (
+            <a href={l.href} aria-current={actif(l.href) ? 'page' : undefined}>{l.texte}</a>
+          ))}
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="conteneur"><slot /></div>
+    </main>
+    <footer class="pied">
+      <div class="conteneur">
+        <span>© {new Date().getFullYear()} {profil.nom}</span>
+        <span>
+          <a href={profil.liens.linkedin}>LinkedIn</a> ·
+          <a href={profil.liens.github}>GitHub</a> ·
+          <a href={profil.liens.tiktok}>TikTok</a> ·
+          <a href={`mailto:${profil.email}`}>E-mail</a>
+        </span>
+      </div>
+    </footer>
+
+    <script>
+      const entete = document.getElementById('entete');
+      const onScroll = () => entete?.classList.toggle('entete--ombree', window.scrollY > 8);
+      document.addEventListener('astro:page-load', () => {
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+      });
+    </script>
+  </body>
+</html>

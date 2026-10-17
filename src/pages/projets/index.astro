@@ -1,0 +1,41 @@
+---
+import Base from '../../layouts/Base.astro';
+import CarteProjet from '../../components/CarteProjet.astro';
+import { getCollection } from 'astro:content';
+
+const projets = (await getCollection('projets'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const domaines = [...new Set(projets.flatMap((p) => p.data.domaines))];
+---
+<Base titre="Projets" description="Mes projets en IA, automatisme, robotique et systèmes autonomes.">
+  <h1 class="reveal">Projets</h1>
+  <p class="sous-titre reveal">
+    Du câblage au modèle d'IA, chaque projet est documenté : problème, démarche, résultats et limites.
+  </p>
+  <div class="filtres reveal">
+    <button type="button" data-filtre="tous" aria-pressed="true">Tous</button>
+    {domaines.map((d) => (
+      <button type="button" data-filtre={d} aria-pressed="false">{d}</button>
+    ))}
+  </div>
+  <div class="grille">
+    {projets.map((p, i) => <div class="reveal" style={`--delai: ${(i % 6) * 80}ms`}><CarteProjet projet={p} /></div>)}
+  </div>
+</Base>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const boutons = document.querySelectorAll<HTMLButtonElement>('.filtres button');
+    const cartes = document.querySelectorAll<HTMLElement>('.grille .carte');
+    boutons.forEach((bouton) => {
+      bouton.addEventListener('click', () => {
+        const filtre = bouton.dataset.filtre ?? 'tous';
+        boutons.forEach((b) => b.setAttribute('aria-pressed', String(b === bouton)));
+        cartes.forEach((carte) => {
+          const domaines = (carte.dataset.domaines ?? '').split('|');
+          carte.hidden = filtre !== 'tous' && !domaines.includes(filtre);
+        });
+      });
+    });
+  });
+</script>

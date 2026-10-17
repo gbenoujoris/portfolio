@@ -1,0 +1,61 @@
+---
+import Base from '../layouts/Base.astro';
+import {
+  profil, experiences, formations, competences, distinctions, certifications, engagements,
+} from '../data/profil';
+---
+<Base titre="À propos" description={profil.presentation}>
+  <img class="photo-profil reveal" src="/photo.jpg" alt={profil.nom} width="160" height="160" />
+  <h1 class="reveal">À propos</h1>
+  <p class="sous-titre reveal">{profil.presentation}</p>
+  <div class="boutons reveal">
+    <a class="bouton principal" href={profil.cv}>Télécharger mon CV</a>
+    <a class="bouton" href={`mailto:${profil.email}`}>Me contacter</a>
+  </div>
+
+  <h2>Expériences</h2>
+  <ul class="chronologie">
+    {experiences.map((e) => (
+      <li>
+        <div class="periode">{e.periode}</div>
+        <strong>{e.titre}</strong>, {e.organisation}
+        <ul>{e.details.map((x) => <li>{x}</li>)}</ul>
+      </li>
+    ))}
+  </ul>
+
+  <h2>Formation</h2>
+  <ul class="chronologie">
+    {formations.map((f) => (
+      <li><div class="periode">{f.periode}</div><strong>{f.titre}</strong><br />{f.organisation}</li>
+    ))}
+  </ul>
+
+  <h2>Compétences</h2>
+  {competences.map((c) => (
+    <div>
+      <h3>{c.domaine}</h3>
+      <div class="etiquettes">{c.items.map((i) => <span class="etiquette">{i}</span>)}</div>
+    </div>
+  ))}
+
+  <h2>Distinctions</h2>
+  <ul class="chronologie">
+    {distinctions.map((x) => (
+      <li><div class="periode">{x.annee}</div><strong>{x.titre}</strong><br />{x.texte}</li>
+    ))}
+  </ul>
+
+  <h2>Certifications</h2>
+  <ul>{certifications.map((c) => <li><a href={c.lien}>{c.titre}</a></li>)}</ul>
+
+  <h2>Engagement</h2>
+  <ul>{engagements.map((e) => <li>{e.periode} : {e.titre}</li>)}</ul>
+
+  <h2>Contact</h2>
+  <p>
+    Stage, emploi, collaboration ou projet : écris-moi à
+    <a href={`mailto:${profil.email}`}>{profil.email}</a>
+    ou sur <a href={profil.liens.linkedin}>LinkedIn</a>.
+  </p>
+</Base>

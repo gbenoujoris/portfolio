@@ -1,16 +1,40 @@
 ---
----
+import Base from '../layouts/Base.astro';
+import CarteProjet from '../components/CarteProjet.astro';
+import { getCollection } from 'astro:content';
+import { profil, chiffres } from '../data/profil';
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+const phares = (await getCollection('projets'))
+  .filter((p) => p.data.phare)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+---
+<Base>
+  <section class="hero">
+    <div class="hero-fond" aria-hidden="true"></div>
+    <p class="hero-badge reveal">Ingénieur · Automatisme · IA</p>
+    <h1 class="reveal">{profil.titre}</h1>
+    <p class="sous-titre reveal">{profil.accroche}</p>
+    <div class="boutons reveal">
+      <a class="bouton principal" href="/projets/">Voir mes projets</a>
+      <a class="bouton" href={profil.cv}>Télécharger mon CV</a>
+      <a class="bouton" href={profil.liens.linkedin}>LinkedIn</a>
+    </div>
+  </section>
+
+  <div class="chiffres">
+    {chiffres.map((c, i) => (
+      <div class="chiffre reveal" style={`--delai: ${i * 80}ms`}><strong>{c.valeur}</strong>{c.texte}</div>
+    ))}
+  </div>
+
+  <h2 class="reveal">Projets phares</h2>
+  <div class="grille">
+    {phares.map((p, i) => <div class="reveal" style={`--delai: ${i * 100}ms`}><CarteProjet projet={p} /></div>)}
+  </div>
+  <p><a class="lien-fleche" href="/projets/">Voir tous les projets <span aria-hidden="true">→</span></a></p>
+
+  <h2 class="reveal">Qui suis-je ?</h2>
+  <p class="sous-titre reveal">{profil.presentation}</p>
+  <p><a class="lien-fleche" href="/a-propos/">Mon parcours complet <span aria-hidden="true">→</span></a></p>
+</Base>

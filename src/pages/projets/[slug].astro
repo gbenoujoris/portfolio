@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projets = await getCollection('projets');
+  return projets.map((projet) => ({ params: { slug: projet.id }, props: { projet } }));
+}
+
+const { projet } = Astro.props;
+const { Content } = await render(projet);
+const d = projet.data;
+const dateTexte = d.date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+---
+<Base titre={d.titre} description={d.resume} image={d.image}>
+  <p><a href="/projets/">← Tous les projets</a></p>
+  <div class="etiquettes">
+    {d.domaines.map((x) => <span class="etiquette">{x}</span>)}
+    {d.statut === 'en cours' && <span class="statut">En cours</span>}
+  </div>
+  <h1>{d.titre}</h1>
+  <p class="sous-titre">{d.resume}</p>
+  <p>{dateTexte}{d.technologies.length > 0 && ` · ${d.technologies.join(' · ')}`}</p>
+  <div class="boutons">
+    {d.video && <a class="bouton principal" href={d.video}>Voir la vidéo</a>}
+    {d.github && <a class="bouton" href={d.github}>Code sur GitHub</a>}
+    {d.lien && <a class="bouton" href={d.lien}>En savoir plus</a>}
+  </div>
+  {d.image && <img src={d.image} alt={d.titre} />}
+  <article class="prose">
+    <Content />
+  </article>
+</Base>
